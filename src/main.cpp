@@ -92,7 +92,8 @@ int main() {
     OCL_SAFE_CALL(errcode);
 
     ///IMPORTANT
-    unsigned int n = 50 * 1000 * 1000; ///with 100 * 10^9 didn't work for my laptop, dont enough allocated memory smh
+    unsigned int n = 50 * 1000 * 1000;
+    ///with 100 * 10^6 didn't work for my laptop, dont enough allocated memory smh (set 50 * 1e0^6)
 
     // Создаем два массива псевдослучайных данных для сложения и массив для будущего хранения результата
     std::vector<float> as(n, 0);
@@ -112,11 +113,11 @@ int main() {
     // или же через метод Buffer Objects -> clEnqueueWriteBuffer
     // И хорошо бы сразу добавить в конце clReleaseMemObject (аналогично, все дальнейшие ресурсы вроде OpenCL под-программы, кернела и т.п. тоже нужно освобождать)
 
-    cl_mem as_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * n, as.data(), &errcode);
+    cl_mem as_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * n, as.data(), &errcode);
     OCL_SAFE_CALL(errcode);
-    cl_mem bs_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * n, bs.data(), &errcode);
+    cl_mem bs_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * n, bs.data(), &errcode);
     OCL_SAFE_CALL(errcode);
-    cl_mem cs_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * n, cs.data(), &errcode);
+    cl_mem cs_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * n, nullptr, &errcode);
     OCL_SAFE_CALL(errcode);
 
     // TODO 6 Выполните TODO 5 (реализуйте кернел в src/cl/aplusb.cl)
@@ -260,11 +261,14 @@ int main() {
     // TODO 16 Сверьте результаты вычислений со сложением чисел на процессоре (и убедитесь, что если в кернеле сделать намеренную ошибку, то эта проверка поймает ошибку)
     for (unsigned int i = 0; i < n; ++i) {
         if (cs[i] != as[i] + bs[i]) {
-            std::cout << as[i] << ' ' << bs[i] << ' ' << cs[i] << std::endl;
+            std::cout << i << ' ' << as[i] << ' ' << bs[i] << ' ' << cs[i] << std::endl;
             throw std::runtime_error("CPU and GPU results differ!");
         }
     }
 
+    OCL_SAFE_CALL(clReleaseMemObject(cs_buffer));
+    OCL_SAFE_CALL(clReleaseMemObject(bs_buffer));
+    OCL_SAFE_CALL(clReleaseMemObject(as_buffer));
     OCL_SAFE_CALL(clReleaseCommandQueue(commmandQueue));
     OCL_SAFE_CALL(clReleaseContext(context));
     return 0;
