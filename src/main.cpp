@@ -111,6 +111,13 @@ int main() {
     // или же через метод Buffer Objects -> clEnqueueWriteBuffer
     // И хорошо бы сразу добавить в конце clReleaseMemObject (аналогично, все дальнейшие ресурсы вроде OpenCL под-программы, кернела и т.п. тоже нужно освобождать)
 
+    cl_mem as_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * n, as.data(), &errcode);
+    OCL_SAFE_CALL(errcode);
+    cl_mem bs_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * n, bs.data(), &errcode);
+    OCL_SAFE_CALL(errcode);
+    cl_mem cs_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * n, cs.data(), &errcode);
+    OCL_SAFE_CALL(errcode);
+
     // TODO 6 Выполните TODO 5 (реализуйте кернел в src/cl/aplusb.cl)
     // затем убедитесь, что выходит загрузить его с диска (убедитесь что Working directory выставлена правильно - см. описание задания),
     // напечатав исходники в консоль (if проверяет, что удалось считать хоть что-то)
@@ -211,7 +218,7 @@ int main() {
     //        }
     //    }
 
-
-    OCL_SAFE_CALL(clRetainContext(context));
+    OCL_SAFE_CALL(clReleaseCommandQueue(commmandQueue));
+    OCL_SAFE_CALL(clReleaseContext(context));
     return 0;
 }
