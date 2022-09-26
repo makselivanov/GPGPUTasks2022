@@ -128,12 +128,17 @@ int main() {
         if (kernel_sources.size() == 0) {
             throw std::runtime_error("Empty source file! May be you forgot to configure working directory properly?");
         }
-        // std::cout << kernel_sources << std::endl;
+        //std::cout << kernel_sources << std::endl; ///Получилось
     }
 
     // TODO 7 Создайте OpenCL-подпрограмму с исходниками кернела
     // см. Runtime APIs -> Program Objects -> clCreateProgramWithSource
     // у string есть метод c_str(), но обратите внимание, что передать вам нужно указатель на указатель
+
+    const char *kernel_pointer = kernel_sources.c_str();
+    const size_t length[] = {kernel_sources.size()};
+    clCreateProgramWithSource(context, 1, &kernel_pointer, length, &errcode);
+    OCL_SAFE_CALL(errcode);
 
     // TODO 8 Теперь скомпилируйте программу и напечатайте в консоль лог компиляции
     // см. clBuildProgram
