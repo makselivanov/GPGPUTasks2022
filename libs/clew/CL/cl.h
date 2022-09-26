@@ -35,7 +35,9 @@
 #include <OpenCL/cl_platform.h>
 #else
 #include <CL/cl_platform.h>
-#endif	
+#include <vector>
+
+#endif
 
 #ifdef __cplusplus
 extern "C" {
