@@ -61,14 +61,13 @@ int main() {
             cl_device_id device_id = devices[deviceIndex];
             cl_device_type deviceType;
             OCL_SAFE_CALL(clGetDeviceInfo(device_id, CL_DEVICE_TYPE, sizeof(deviceType), &deviceType, nullptr));
-            if (deviceType & CL_DEVICE_TYPE_GPU) {
+            deviceId = device_id;
+            platformId = platform;
+            if ((deviceType & CL_DEVICE_TYPE_GPU) ) {
                 isGPU = true;
-                deviceId = device_id;
-                platformId = platform;
-            } else if ((deviceType & CL_DEVICE_TYPE_CPU) && !isGPU) {
-                deviceId = device_id;
-                platformId = platform;
             }
+            if (isGPU)
+                break;
         }
     }
 
@@ -92,7 +91,9 @@ int main() {
     cl_command_queue commmandQueue = clCreateCommandQueue(context, deviceId, 0, &errcode);
     OCL_SAFE_CALL(errcode);
 
-    unsigned int n = 100 * 1000 * 1000;
+    ///IMPORTANT
+    unsigned int n = 50 * 1000 * 1000; ///with 100 * 10^9 didn't work for my laptop, dont enough allocated memory smh
+
     // Создаем два массива псевдослучайных данных для сложения и массив для будущего хранения результата
     std::vector<float> as(n, 0);
     std::vector<float> bs(n, 0);
@@ -189,13 +190,18 @@ int main() {
     // TODO 10 Выставите все аргументы в кернеле через clSetKernelArg (as_gpu, bs_gpu, cs_gpu и число значений, убедитесь, что тип количества элементов такой же в кернеле)
     {
         unsigned int i = 0;
-        clSetKernelArg(kernel, i++, sizeof(float) * n, as.data());
-        clSetKernelArg(kernel, i++, sizeof(float) * n, bs.data());
-        clSetKernelArg(kernel, i++, sizeof(float) * n, cs.data());
-        clSetKernelArg(kernel, i++, sizeof(n), &n);
+        errcode = clSetKernelArg(kernel, i++, sizeof(cl_mem), &as_buffer);
+        OCL_SAFE_CALL(errcode);
+        errcode = clSetKernelArg(kernel, i++, sizeof(cl_mem), &bs_buffer);
+        OCL_SAFE_CALL(errcode);
+        errcode = clSetKernelArg(kernel, i++, sizeof(cl_mem), &cs_buffer);
+        OCL_SAFE_CALL(errcode);
+        errcode = clSetKernelArg(kernel, i++, sizeof(n), &n);
+        OCL_SAFE_CALL(errcode);
     }
 
     // TODO 11 Выше увеличьте n с 1000*1000 до 100*1000*1000 (чтобы дальнейшие замеры были ближе к реальности)
+    //done
 
     // TODO 12 Запустите выполнения кернела:
     // - С одномерной рабочей группой размера 128
@@ -209,8 +215,12 @@ int main() {
         size_t global_work_size = (n + workGroupSize - 1) / workGroupSize * workGroupSize;
         timer t;// Это вспомогательный секундомер, он замеряет время своего создания и позволяет усреднять время нескольких замеров
         for (unsigned int i = 0; i < 20; ++i) {
-            // clEnqueueNDRangeKernel...
-            // clWaitForEvents...
+            cl_event event;
+            errcode = clEnqueueNDRangeKernel(commmandQueue, kernel, 1, nullptr, &global_work_size, &workGroupSize, 0, nullptr,
+                                   &event);
+            OCL_SAFE_CALL(errcode);
+            errcode = clWaitForEvents(1, &event);
+            OCL_SAFE_CALL(errcode);
             t.nextLap();// При вызове nextLap секундомер запоминает текущий замер (текущий круг) и начинает замерять время следующего круга
         }
         // Среднее время круга (вычисления кернела) на самом деле считается не по всем замерам, а лишь с 20%-перцентайля по 80%-перцентайль (как и стандартное отклонение)
