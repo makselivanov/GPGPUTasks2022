@@ -137,24 +137,54 @@ int main() {
 
     const char *kernel_pointer = kernel_sources.c_str();
     const size_t length[] = {kernel_sources.size()};
-    clCreateProgramWithSource(context, 1, &kernel_pointer, length, &errcode);
+    cl_program program = clCreateProgramWithSource(context, 1, &kernel_pointer, length, &errcode);
     OCL_SAFE_CALL(errcode);
 
     // TODO 8 Теперь скомпилируйте программу и напечатайте в консоль лог компиляции
     // см. clBuildProgram
+    errcode = clBuildProgram(program, 1, &deviceId, nullptr, nullptr, nullptr);
 
     // А также напечатайте лог компиляции (он будет очень полезен, если в кернеле есть синтаксические ошибки - т.е. когда clBuildProgram вернет CL_BUILD_PROGRAM_FAILURE)
     // Обратите внимание, что при компиляции на процессоре через Intel OpenCL драйвер - в логе указывается, какой ширины векторизацию получилось выполнить для кернела
     // см. clGetProgramBuildInfo
-    //    size_t log_size = 0;
-    //    std::vector<char> log(log_size, 0);
-    //    if (log_size > 1) {
-    //        std::cout << "Log:" << std::endl;
-    //        std::cout << log.data() << std::endl;
-    //    }
+    {
+        cl_int errcode2;
+        cl_build_status buildStatus;
+        errcode2 = clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_STATUS, sizeof(buildStatus), &buildStatus,
+                                         nullptr);
+        OCL_SAFE_CALL(errcode2);
+        std::cout << "Build status: ";
+        switch (buildStatus) {
+            case CL_BUILD_NONE:
+                std::cout << "None\n";
+                break;
+            case CL_BUILD_ERROR:
+                std::cout << "Error\n";
+                break;
+            case CL_BUILD_SUCCESS:
+                std::cout << "Success\n";
+                break;
+            case CL_BUILD_IN_PROGRESS:
+                std::cout << "In progress\n";
+                break;
+        }
+
+        size_t log_size = 65536;
+        std::vector<char> log(log_size, 0);
+        size_t real_log_size;
+        errcode2 = clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, sizeof(char) * (log_size - 1), log.data(), &real_log_size);
+        OCL_SAFE_CALL(errcode2);
+        if (log_size > 1) {
+            std::cout << "Log:" << std::endl;
+            std::cout << log.data() << std::endl;
+        }
+    }
+    OCL_SAFE_CALL(errcode);
 
     // TODO 9 Создайте OpenCL-kernel в созданной подпрограмме (в одной подпрограмме может быть несколько кернелов, но в данном случае кернел один)
     // см. подходящую функцию в Runtime APIs -> Program Objects -> Kernel Objects
+    cl_kernel kernel = clCreateKernel(program, "aplusb", &errcode);
+    OCL_SAFE_CALL(errcode);
 
     // TODO 10 Выставите все аргументы в кернеле через clSetKernelArg (as_gpu, bs_gpu, cs_gpu и число значений, убедитесь, что тип количества элементов такой же в кернеле)
     {
