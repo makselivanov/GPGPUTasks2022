@@ -61,11 +61,11 @@ int main() {
             cl_device_id device_id = devices[deviceIndex];
             cl_device_type deviceType;
             OCL_SAFE_CALL(clGetDeviceInfo(device_id, CL_DEVICE_TYPE, sizeof(deviceType), &deviceType, nullptr));
-            if (deviceType | CL_DEVICE_TYPE_GPU) {
+            if (deviceType & CL_DEVICE_TYPE_GPU) {
                 isGPU = true;
                 deviceId = device_id;
                 platformId = platform;
-            } else if ((deviceType | CL_DEVICE_TYPE_CPU) && !isGPU) {
+            } else if ((deviceType & CL_DEVICE_TYPE_CPU) && !isGPU) {
                 deviceId = device_id;
                 platformId = platform;
             }
@@ -80,7 +80,7 @@ int main() {
     const cl_context_properties properties[3] = {CL_CONTEXT_PLATFORM, (cl_context_properties)platformId, 0};
     cl_int errcode;
     cl_context context;
-    context = clCreateContext(reinterpret_cast<const cl_context_properties *>(&platformId), 1, &deviceId, nullptr, nullptr, &errcode);
+    context = clCreateContext(properties, 1, &deviceId, nullptr, nullptr, &errcode);
     OCL_SAFE_CALL(errcode);
 
 
