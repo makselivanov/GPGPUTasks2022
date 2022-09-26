@@ -89,6 +89,9 @@ int main() {
     // Убедитесь, что в соответствии с документацией вы создали in-order очередь задач
     // И хорошо бы сразу добавить в конце clReleaseQueue (не забывайте освобождать ресурсы)
 
+    cl_command_queue commmandQueue = clCreateCommandQueue(context, deviceId, 0, &errcode);
+    OCL_SAFE_CALL(errcode);
+
     unsigned int n = 1000 * 1000;
     // Создаем два массива псевдослучайных данных для сложения и массив для будущего хранения результата
     std::vector<float> as(n, 0);
