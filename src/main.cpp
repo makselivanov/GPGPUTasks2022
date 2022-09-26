@@ -46,6 +46,7 @@ int main() {
 
     bool isGPU = false;
     cl_device_id deviceId;
+    cl_platform_id platformId;
 
     for (int platformIndex = 0; platformIndex < platformsCount; ++platformIndex) {
         cl_platform_id platform = platforms[platformIndex];
@@ -63,8 +64,10 @@ int main() {
             if (deviceType | CL_DEVICE_TYPE_GPU) {
                 isGPU = true;
                 deviceId = device_id;
+                platformId = platform;
             } else if ((deviceType | CL_DEVICE_TYPE_CPU) && !isGPU) {
                 deviceId = device_id;
+                platformId = platform;
             }
         }
     }
@@ -74,6 +77,12 @@ int main() {
     // Не забывайте проверять все возвращаемые коды на успешность (обратите внимание, что в данном случае метод возвращает
     // код по переданному аргументом errcode_ret указателю)
     // И хорошо бы сразу добавить в конце clReleaseContext (да, не очень RAII, но это лишь пример)
+    const cl_context_properties properties[3] = {CL_CONTEXT_PLATFORM, (cl_context_properties)platformId, 0};
+    cl_int errcode;
+    cl_context context;
+    context = clCreateContext(reinterpret_cast<const cl_context_properties *>(&platformId), 1, &deviceId, nullptr, nullptr, &errcode);
+    OCL_SAFE_CALL(errcode);
+
 
     // TODO 3 Создайте очередь выполняемых команд в рамках выбранного контекста и устройства
     // См. документацию https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/ -> OpenCL Runtime -> Runtime APIs -> Command Queues -> clCreateCommandQueue
@@ -199,5 +208,7 @@ int main() {
     //        }
     //    }
 
+
+    OCL_SAFE_CALL(clRetainContext(context));
     return 0;
 }
