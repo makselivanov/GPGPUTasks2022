@@ -92,7 +92,7 @@ int main() {
     cl_command_queue commmandQueue = clCreateCommandQueue(context, deviceId, 0, &errcode);
     OCL_SAFE_CALL(errcode);
 
-    unsigned int n = 1000 * 1000;
+    unsigned int n = 100 * 1000 * 1000;
     // Создаем два массива псевдослучайных данных для сложения и массив для будущего хранения результата
     std::vector<float> as(n, 0);
     std::vector<float> bs(n, 0);
@@ -188,11 +188,11 @@ int main() {
 
     // TODO 10 Выставите все аргументы в кернеле через clSetKernelArg (as_gpu, bs_gpu, cs_gpu и число значений, убедитесь, что тип количества элементов такой же в кернеле)
     {
-        // unsigned int i = 0;
-        // clSetKernelArg(kernel, i++, ..., ...);
-        // clSetKernelArg(kernel, i++, ..., ...);
-        // clSetKernelArg(kernel, i++, ..., ...);
-        // clSetKernelArg(kernel, i++, ..., ...);
+        unsigned int i = 0;
+        clSetKernelArg(kernel, i++, sizeof(float) * n, as.data());
+        clSetKernelArg(kernel, i++, sizeof(float) * n, bs.data());
+        clSetKernelArg(kernel, i++, sizeof(float) * n, cs.data());
+        clSetKernelArg(kernel, i++, sizeof(n), &n);
     }
 
     // TODO 11 Выше увеличьте n с 1000*1000 до 100*1000*1000 (чтобы дальнейшие замеры были ближе к реальности)
