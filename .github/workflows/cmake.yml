@@ -39,7 +39,3 @@ jobs:
     - name: sum
       working-directory: ${{github.workspace}}/build
       run: ./sum
-
-    - name: max_prefix_sum
-      working-directory: ${{github.workspace}}/build
-      run: ./max_prefix_sum
