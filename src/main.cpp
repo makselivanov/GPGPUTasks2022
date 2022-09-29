@@ -171,10 +171,12 @@ int main() {
                 break;
         }
 
-        size_t log_size = 65536;
+        size_t log_size;
+        errcode2 = clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, 0, nullptr, &log_size);
+        OCL_SAFE_CALL(errcode2);
         std::vector<char> log(log_size, 0);
-        size_t real_log_size;
-        errcode2 = clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, sizeof(char) * (log_size - 1), log.data(), &real_log_size);
+        errcode2 = clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, sizeof(char) * (log_size), log.data(),
+                                         nullptr);
         OCL_SAFE_CALL(errcode2);
         if (log_size > 1) {
             std::cout << "Log:" << std::endl;
