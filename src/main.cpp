@@ -40,8 +40,40 @@ int main()
     if (!ocl_init())
         throw std::runtime_error("Can't init OpenCL driver!");
 
-    // TODO 1 По аналогии с предыдущим заданием узнайте, какие есть устройства, и выберите из них какое-нибудь
+    // DONE 1 По аналогии с предыдущим заданием узнайте, какие есть устройства, и выберите из них какое-нибудь
     // (если в списке устройств есть хоть одна видеокарта - выберите ее, если нету - выбирайте процессор)
+
+    cl_uint platformsCount = 0;
+    OCL_SAFE_CALL(clGetPlatformIDs(0, nullptr, &platformsCount));
+    std::vector<cl_platform_id> platforms(platformsCount);
+    OCL_SAFE_CALL(clGetPlatformIDs(platformsCount, platforms.data(), nullptr));
+
+    bool isGPU = false;
+    cl_device_id deviceId;
+    cl_platform_id platformId;
+
+    for (int platformIndex = 0; platformIndex < platformsCount; ++platformIndex) {
+        cl_platform_id platform = platforms[platformIndex];
+
+        cl_uint devicesCount = 0;
+        OCL_SAFE_CALL(clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, nullptr, &devicesCount));
+
+        std::vector<cl_device_id> devices(devicesCount);
+        OCL_SAFE_CALL(clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, devicesCount, devices.data(), nullptr));
+
+        for (int deviceIndex = 0; deviceIndex < devicesCount; ++deviceIndex) {
+            cl_device_id device_id = devices[deviceIndex];
+            cl_device_type deviceType;
+            OCL_SAFE_CALL(clGetDeviceInfo(device_id, CL_DEVICE_TYPE, sizeof(deviceType), &deviceType, nullptr));
+            deviceId = device_id;
+            platformId = platform;
+            if ((deviceType & CL_DEVICE_TYPE_GPU) ) {
+                isGPU = true;
+            }
+            if (isGPU)
+                break;
+        }
+    }
 
     // TODO 2 Создайте контекст с выбранным устройством
     // См. документацию https://www.khronos.org/registry/OpenCL/sdk/1.2/docs/man/xhtml/ -> OpenCL Runtime -> Contexts -> clCreateContext
