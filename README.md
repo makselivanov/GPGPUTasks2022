@@ -1,14 +1,14 @@
-В этом репозитории предложены задания для [курса по вычислениям на видеокартах в CSC](https://compscicenter.ru/courses/video_cards_computation/2021-autumn/).
+В этом репозитории предложены задания для [курса по вычислениям на видеокартах в CSC](https://compscicenter.ru/courses/video_cards_computation/2022-autumn/).
 
-[Остальные задания](https://github.com/GPGPUCourse/GPGPUTasks2021/).
+[Остальные задания](https://github.com/GPGPUCourse/GPGPUTasks2022/).
 
 # Задание 4. Транспонирование матрицы, умножение матриц.
 
-[![Build Status](https://github.com/GPGPUCourse/GPGPUTasks2021/actions/workflows/cmake.yml/badge.svg?branch=task04&event=push)](https://github.com/GPGPUCourse/GPGPUTasks2021/actions/workflows/cmake.yml)
+[![Build Status](https://github.com/GPGPUCourse/GPGPUTasks2022/actions/workflows/cmake.yml/badge.svg?branch=task04&event=push)](https://github.com/GPGPUCourse/GPGPUTasks2022/actions/workflows/cmake.yml)
 
 0. Сделать fork проекта
 1. Выполнить задания 4.1 и 4.2 ниже
-2. Отправить **Pull-request** с названием```Task04 <Имя> <Фамилия> <Аффиляция>``` (добавив в описании вывод работы программы в **pre**-тэгах - см. [пример](https://raw.githubusercontent.com/GPGPUCourse/GPGPUTasks2021/task03/.github/pull_request_example.md))
+2. Отправить **Pull-request** с названием```Task04 <Имя> <Фамилия> <Аффиляция>``` (добавив в описании вывод работы программы в **pre**-тэгах - см. [пример](https://raw.githubusercontent.com/GPGPUCourse/GPGPUTasks2022/task03/.github/pull_request_example.md))
 
 **Дедлайн**: начало лекции 11 октября.
 
