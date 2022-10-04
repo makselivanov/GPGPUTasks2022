@@ -32,14 +32,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ./aplusb
 
-    - name: mandelbrot
+    - name: matrix_transpose
       working-directory: ${{github.workspace}}/build
-      run: ./mandelbrot
+      run: ./matrix_transpose
 
-    - name: sum
+    - name: matrix_multiplication
       working-directory: ${{github.workspace}}/build
-      run: ./sum
-
-    - name: max_prefix_sum
-      working-directory: ${{github.workspace}}/build
-      run: ./max_prefix_sum
+      run: ./matrix_multiplication
