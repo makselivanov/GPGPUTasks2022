@@ -8,6 +8,7 @@
 - [Задание 2](https://github.com/GPGPUCourse/GPGPUTasks2022/tree/task02): Теоретическое задание: параллелизуемость/code divergence/memory coalesced access. (5 баллов)
 - [Задание 3](https://github.com/GPGPUCourse/GPGPUTasks2022/tree/task03): Задание 3. Фрактал Мандельброта. Сумма чисел. (10 баллов)
 - [Задание 4](https://github.com/GPGPUCourse/GPGPUTasks2022/tree/task04): Задание 4. Транспонирование матрицы, умножение матриц. (10 баллов)
+- [Задание 5](https://github.com/GPGPUCourse/GPGPUTasks2022/tree/task05): Задание 5. Merge sort. (10 баллов)
 
 Оценка
 ======
