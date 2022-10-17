@@ -19,7 +19,7 @@ int main(int argc, char **argv)
     context.init(device.device_id_opencl);
     context.activate();
 
-    int benchmarkingIters = 10; // TODO пока тестируетесь удобно выставить единицу
+    int benchmarkingIters = 10;
     unsigned int M = 1024; //1024
     unsigned int K = 1024;
     unsigned int N = 1024;
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 
     {
         timer t;
-        for (int iter = 0; iter < benchmarkingIters; ++iter) {
+        for (int iter = 0; iter < 10; ++iter) {
             for (int j = 0; j < M; ++j) {
                 for (int i = 0; i < N; ++i) {
                     float sum = 0.0f;
@@ -104,15 +104,17 @@ int main(int argc, char **argv)
     }
 
     ocl::Kernel matrix_multiplication_kernel_fma(matrix_multiplication, matrix_multiplication_length, "matrix_multiplication_fma");
+    std::vector<float> buffer(M * N, 1);
+    cs_gpu.writeN(buffer.data(), M*N);
 
     matrix_multiplication_kernel_fma.compile();
     {
         timer t;
         for (int iter = 0; iter < benchmarkingIters; ++iter) {
-            unsigned int work_group_size = 16;
-            unsigned int thread_work = 2;
+            unsigned int work_group_size = 32;
+            unsigned int thread_work = 16;
             unsigned int thread_in_group = work_group_size / thread_work;
-            unsigned int global_work_size1 = (N + thread_in_group - 1) / thread_in_group * thread_in_group;
+            unsigned int global_work_size1 = ((N + thread_work - 1) / thread_work + thread_in_group - 1) / thread_in_group * thread_in_group;
             unsigned int global_work_size2 = (M + work_group_size - 1) / work_group_size * work_group_size;
             matrix_multiplication_kernel_fma.exec(
                     gpu::WorkSize(
