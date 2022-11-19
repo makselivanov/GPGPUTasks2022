@@ -10,6 +10,7 @@
 - [Задание 4](https://github.com/GPGPUCourse/GPGPUTasks2022/tree/task04): Транспонирование матрицы, умножение матриц. (10 баллов)
 - [Задание 5](https://github.com/GPGPUCourse/GPGPUTasks2022/tree/task05): Merge sort. (10 баллов)
 - [Задание 6](https://github.com/GPGPUCourse/GPGPUTasks2022/tree/task06): Bitonic sort, prefix sum, radix sort. (15 баллов)
+- [Задание 7](https://github.com/GPGPUCourse/GPGPUTasks2022/tree/task07): SDF. (5 баллов)
 
 Оценка
 ======
