@@ -14,16 +14,17 @@ float sdPlane(vec3 p)
 // see https://iquilezles.org/articles/distfunctions/
 float sdCapsule( vec3 p, vec3 a, vec3 b, float r )
 {
-  // TODO
-    return 0.0;
+    vec3 pa = p - a, ba = b - a;
+    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+    return length( pa - ba*h ) - r;
 }
 
 // smooth minimum function to create gradual transitions between SDFs
 // https://iquilezles.org/articles/smin/
 float smoothmin(float d0, float d1, float k)
 {
-    // TODO
-    return 0.0;
+    float h = max( k-abs(d0-d1), 0.0 ) / k;
+    return min( d0, d1 ) - h*h*k*(1.0/4.0);
 }
 
 // косинус который пропускает некоторые периоды, удобно чтобы махать ручкой не все время
@@ -45,48 +46,63 @@ vec4 sdBody(vec3 p)
 
     // body, two spheres with smoothmin
     // TODO
-    d = sdSphere((p - vec3(0.0, 0.35, -0.7)), 0.35);
+    float d0 = sdSphere((p - vec3(0.0, 0.35, -0.7)), 0.35);
+    float d1 = sdSphere((p - vec3(0.0, 0.7, -0.7)), 0.2);
+    d = smoothmin(d0, d1, 0.3);
     
     // hands, two capsules, can wave with lazycos
-    // TODO
+    float hand_bx = 0.22, hand_ex = 0.17;
+    float hand_by = 0.52, hand_ey = -0.2; //0.6 0.3
+    float angle = 0.0;
+    float hand0 = sdCapsule(p, 
+                            vec3(-hand_bx,hand_by,-0.7), 
+                            vec3(-hand_bx - hand_ex, hand_by + abs(lazycos(iTime * 10.)) * hand_ey,-0.7), 
+                            0.04);
+    d = min(hand0, d);
+    float hand1 = sdCapsule(p, vec3(hand_bx,hand_by,-0.7), vec3(hand_ex + hand_bx,hand_ey + hand_by,-0.7), 0.04);
+    d = min(hand1, d);
     
     // legs, two capsules
-    // TODO
+    float leg_x = 0.1;
+    float leg0 = sdCapsule(p, vec3(-leg_x,-0.04,-0.7), vec3(-leg_x,0.2,-0.7), 0.05);
+    d = min(leg0, d);
+    float leg1 = sdCapsule(p, vec3(leg_x,-0.04,-0.7), vec3(leg_x,0.2,-0.7), 0.05);
+    d = min(leg1, d);
     
     // return distance and color
     return vec4(d, vec3(0.0, 1.0, 0.0));
 }
 
+
 vec4 sdEyeBall(vec3 p)
 {
 
-    // TODO
-    float d0 = 1e10;
+    float d0 = 0.2;
+    float d = sdSphere(p - vec3(0, 0.62, -0.53), d0);
     
     // return distance and color
-    return vec4(d0, vec3(1.0, 1.0, 1.0));
+    return vec4(d, vec3(1.0, 1.0, 1.0));
 
 }
 
 vec4 sdEyePupil(vec3 p)
 {
-
-    // TODO
-    float d0 = 1e10;
+    float d0 = 0.05; // 0.05
+    //float d = sdCutSphere(p - vec3(0, 0.62, -0.4), d0, -.1);
+    float d = sdSphere(p - vec3(0, 0.62, -0.32), d0);
     
     // return distance and color
-    return vec4(d0, vec3(0.0, 0.0, 0.0));
+    return vec4(d, vec3(0.0, 0.0, 0.0));
 
 }
 
 vec4 sdEyeIris(vec3 p)
 {
-
-    // TODO
-    float d0 = 1e10;
+    float d0 = 0.1;
+    float d = sdSphere(p - vec3(0, 0.62, -0.39), d0);
     
     // return distance and color
-    return vec4(d0, vec3(0.0, 1.0, 1.0));
+    return vec4(d, vec3(0.0, 1.0, 1.0));
 
 }
 
@@ -94,7 +110,18 @@ vec4 sdEye(vec3 p)
 {
 
     vec4 res = vec4(1e10, 0.0, 0.0, 0.0);
-    
+    vec4 ba = sdEyeBall(p);
+    vec4 pu = sdEyePupil(p);
+    vec4 ir = sdEyeIris(p);
+    float d = min(ba[0], pu[0]);
+    d = min(d, ir[0]);
+    if (d == ba[0]) {
+        res = ba;
+    } else if (d == pu[0]) {
+        res = pu;
+    } else {
+        res = ir;
+    }
     return res;
 }
 
