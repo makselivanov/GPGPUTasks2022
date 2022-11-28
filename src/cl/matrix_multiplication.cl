@@ -80,9 +80,9 @@ __kernel void matrix_multiplication_fma(
         //const unsigned int shift = index;
 
         for (unsigned int w = 0; w < THREAD_WORK; ++w)
-            suba[local_n + THREAD_WORK * w][local_m] = getOrDefault(a, indm, index + local_n + THREAD_WORK * w, m, k);
+            suba[local_n + (TILE_SIZE2 / THREAD_WORK) * w][local_m] = getOrDefault(a, indm, index + local_n + (TILE_SIZE2 / THREAD_WORK) * w, m, k);
         for (unsigned int w = 0; w < THREAD_WORK; ++w)
-            subb[local_n + THREAD_WORK * w][local_m] = getOrDefault(b, index + local_m, indn + THREAD_WORK * w, k, n);
+            subb[local_n + (TILE_SIZE2 / THREAD_WORK) * w][local_m] = getOrDefault(b, index + local_m, local_group_n * TILE_SIZE2 + local_n + (TILE_SIZE2 / THREAD_WORK) * w, k, n);
 
         barrier(CLK_LOCAL_MEM_FENCE);
         for (unsigned int i = 0; i < TILE_SIZE; ++i) {
