@@ -75,20 +75,20 @@ __kernel void matrix_multiplication_fma(
     float sum[THREAD_WORK];
     for (unsigned int index = 0; index < THREAD_WORK; ++index)
         sum[index] = 0;
-    const unsigned int new_local_n = local_n * THREAD_WORK;
+    //const unsigned int new_local_n = local_n * THREAD_WORK;
     for (unsigned int index = 0; index < (k + TILE_SIZE - 1); index += TILE_SIZE) {
-        const unsigned int shift = index;
+        //const unsigned int shift = index;
 
         for (unsigned int w = 0; w < THREAD_WORK; ++w)
-            suba[new_local_n + w][local_m] = getOrDefault(a, indm, shift + new_local_n + w, m, k);
+            suba[local_n + THREAD_WORK * w][local_m] = getOrDefault(a, indm, index + local_n + THREAD_WORK * w, m, k);
         for (unsigned int w = 0; w < THREAD_WORK; ++w)
-            subb[new_local_n + w][local_m] = getOrDefault(b, shift + local_m, indn * THREAD_WORK + w, k, n);
+            subb[local_n + THREAD_WORK * w][local_m] = getOrDefault(b, index + local_m, indn + THREAD_WORK * w, k, n);
 
         barrier(CLK_LOCAL_MEM_FENCE);
         for (unsigned int i = 0; i < TILE_SIZE; ++i) {
             float tmp = suba[i][local_m];
             for (unsigned int w = 0; w < THREAD_WORK; ++w) {
-                sum[w] += tmp * subb[new_local_n + w][i];
+                sum[w] += tmp * subb[local_n * THREAD_WORK + w][i];
             }
         }
         barrier(CLK_LOCAL_MEM_FENCE);
